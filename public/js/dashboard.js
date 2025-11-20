@@ -7,11 +7,14 @@ let services = [];
 async function init() {
   try {
     initializeTheme();
+    initializeView();
     await loadServices();
     renderDashboard();
     setupSocketConnection();
     setupPolling();
     setupThemeToggle();
+    setupViewToggle();
+    setupRefreshButton();
   } catch (error) {
     console.error('Initialization error:', error);
     showError('Failed to initialize dashboard');
@@ -36,6 +39,42 @@ function setupThemeToggle() {
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
     themeToggle.addEventListener('click', toggleTheme);
+  }
+}
+
+// View Management
+function initializeView() {
+  const savedView = localStorage.getItem('view') || 'grid';
+  document.documentElement.setAttribute('data-view', savedView);
+}
+
+function toggleView() {
+  const currentView = document.documentElement.getAttribute('data-view');
+  let newView;
+  
+  // Cycle through: grid -> list -> list-2col -> grid
+  switch(currentView) {
+    case 'grid':
+      newView = 'list';
+      break;
+    case 'list':
+      newView = 'list-2col';
+      break;
+    case 'list-2col':
+      newView = 'grid';
+      break;
+    default:
+      newView = 'grid';
+  }
+  
+  document.documentElement.setAttribute('data-view', newView);
+  localStorage.setItem('view', newView);
+}
+
+function setupViewToggle() {
+  const viewToggle = document.getElementById('view-toggle');
+  if (viewToggle) {
+    viewToggle.addEventListener('click', toggleView);
   }
 }
 
@@ -191,6 +230,46 @@ function updateTimestamp() {
 function showError(message) {
   const container = document.getElementById('dashboard-container');
   container.innerHTML = `<div class="loading" style="color: var(--color-down);">${message}</div>`;
+}
+
+// Manual Refresh
+let isRefreshing = false;
+
+async function manualRefresh() {
+  if (isRefreshing) return;
+  
+  const refreshBtn = document.getElementById('refresh-btn');
+  
+  try {
+    // Set refreshing state
+    isRefreshing = true;
+    refreshBtn.classList.add('refreshing');
+    
+    // Load fresh data
+    await loadServices();
+    updateDashboard();
+    
+    // Keep spinning for at least 500ms for visual feedback
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+  } catch (error) {
+    console.error('Manual refresh error:', error);
+  } finally {
+    // Reset refreshing state
+    refreshBtn.classList.remove('refreshing');
+    
+    // Add cooldown to prevent spam (1 second)
+    setTimeout(() => {
+      isRefreshing = false;
+    }, 1000);
+  }
+}
+
+function setupRefreshButton() {
+  const refreshBtn = document.getElementById('refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', manualRefresh);
+  }
 }
 
 // Initialize on page load
