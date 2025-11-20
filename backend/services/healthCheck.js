@@ -172,6 +172,96 @@ class HealthCheckService {
     this.loadConfiguration();
     this.startPolling();
   }
+
+  addService(serviceData) {
+    const configPath = process.env.CONFIG_PATH || path.join(__dirname, '../../config/services.json');
+    
+    try {
+      // Load current config
+      const configData = fs.readFileSync(configPath, 'utf8');
+      const config = JSON.parse(configData);
+      
+      // Generate ID if not provided
+      if (!serviceData.id) {
+        serviceData.id = serviceData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      }
+      
+      // Check if service ID already exists
+      if (config.services.some(s => s.id === serviceData.id)) {
+        throw new Error(`Service with ID "${serviceData.id}" already exists`);
+      }
+      
+      // Set defaults
+      const newService = {
+        id: serviceData.id,
+        name: serviceData.name,
+        endpoint: serviceData.endpoint,
+        type: serviceData.type || 'internal',
+        category: serviceData.category || 'core',
+        pollInterval: serviceData.pollInterval || this.settings.defaultPollInterval || 60,
+        criticalService: serviceData.criticalService !== undefined ? serviceData.criticalService : false,
+        ...(serviceData.metadata && { metadata: serviceData.metadata })
+      };
+      
+      // Add service to config
+      config.services.push(newService);
+      
+      // Save config file
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+      
+      // Reload configuration to start polling the new service
+      this.reloadConfiguration();
+      
+      return newService;
+    } catch (error) {
+      console.error('Error adding service:', error.message);
+      throw error;
+    }
+  }
+
+  deleteService(serviceId) {
+    const configPath = process.env.CONFIG_PATH || path.join(__dirname, '../../config/services.json');
+    
+    try {
+      // Load current config
+      const configData = fs.readFileSync(configPath, 'utf8');
+      const config = JSON.parse(configData);
+      
+      // Find service index
+      const serviceIndex = config.services.findIndex(s => s.id === serviceId);
+      
+      if (serviceIndex === -1) {
+        throw new Error(`Service with ID "${serviceId}" not found`);
+      }
+      
+      // Remove service
+      const deletedService = config.services.splice(serviceIndex, 1)[0];
+      
+      // Save config file
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+      
+      // Reload configuration to stop polling the deleted service
+      this.reloadConfiguration();
+      
+      return deletedService;
+    } catch (error) {
+      console.error('Error deleting service:', error.message);
+      throw error;
+    }
+  }
+
+  getAllServices() {
+    return this.services.map(service => ({
+      id: service.id,
+      name: service.name,
+      endpoint: service.endpoint,
+      type: service.type,
+      category: service.category,
+      pollInterval: service.pollInterval,
+      criticalService: service.criticalService,
+      metadata: service.metadata
+    }));
+  }
 }
 
 module.exports = new HealthCheckService();
