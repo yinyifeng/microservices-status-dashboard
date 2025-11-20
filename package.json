@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
+    "build": "node -e \"const fs = require('fs'); const config = JSON.parse(fs.readFileSync('config/services.json', 'utf8')); console.log('✓ Configuration file is valid'); console.log('✓ Found', config.services.length, 'services configured'); process.exit(0);\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
