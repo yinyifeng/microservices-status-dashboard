@@ -1,0 +1,103 @@
+{
+  "services": [
+    {
+      "id": "catalog-api",
+      "name": "Catalog API",
+      "endpoint": "https://wf-catalog-api-production.up.railway.app/api/v2/health/",
+      "type": "internal",
+      "category": "core",
+      "pollInterval": 30,
+      "criticalService": true
+    },
+    {
+      "id": "scale-station-1",
+      "name": "Scale Station 1",
+      "endpoint": "https://scales.tmbproduction.com/station1/status",
+      "type": "hardware",
+      "category": "production",
+      "pollInterval": 30,
+      "criticalService": true,
+      "metadata": {
+        "location": "Station 1",
+        "productType": "Beef cuts"
+      }
+    },
+    {
+      "id": "scale-station-2",
+      "name": "Scale Station 2",
+      "endpoint": "https://scales.tmbproduction.com/station2/status",
+      "type": "hardware",
+      "category": "production",
+      "pollInterval": 30,
+      "criticalService": true,
+      "metadata": {
+        "location": "Station 2",
+        "productType": "Beef cuts"
+      }
+    },
+    {
+      "id": "scale-station-3",
+      "name": "Scale Station 3",
+      "endpoint": "https://scales.tmbproduction.com/station3/status",
+      "type": "hardware",
+      "category": "production",
+      "pollInterval": 30,
+      "criticalService": true,
+      "metadata": {
+        "location": "Station 3",
+        "productType": "Beef cuts"
+      }
+    },
+    {
+      "id": "scale-station-4",
+      "name": "Scale Station 4",
+      "endpoint": "https://scales.tmbproduction.com/station4/status",
+      "type": "hardware",
+      "category": "production",
+      "pollInterval": 30,
+      "criticalService": true,
+      "metadata": {
+        "location": "Station 4",
+        "productType": "Beef cuts"
+      }
+    },
+    {
+      "id": "scale-station-5",
+      "name": "Scale Station 5",
+      "endpoint": "https://scales.tmbproduction.com/station5/status",
+      "type": "hardware",
+      "category": "production",
+      "pollInterval": 30,
+      "criticalService": true,
+      "metadata": {
+        "location": "Station 5",
+        "productType": "Beef cuts"
+      }
+    },
+    {
+      "id": "geotab",
+      "name": "Geotab Fleet",
+      "endpoint": "https://api.geotab.com/health",
+      "type": "third-party",
+      "category": "operations",
+      "pollInterval": 120,
+      "criticalService": false
+    },
+    {
+      "id": "maintainx",
+      "name": "Maintain X",
+      "endpoint": "https://api.getmaintainx.com/status",
+      "type": "third-party",
+      "category": "operations",
+      "pollInterval": 120,
+      "criticalService": false
+    }
+  ],
+  "settings": {
+    "defaultPollInterval": 60,
+    "criticalPollInterval": 30,
+    "normalPollInterval": 120,
+    "timeoutThreshold": 5000,
+    "warningThreshold": 2000
+  }
+}
